@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: sans-serif; background: #121212; color: #ffffff; text-align: center; margin: 0; padding: 10px; }
+    
+    .grid { display: grid; grid-template-columns: repeat(5, 90px); gap: 10px; justify-content: center; margin-bottom: 20px; }
+    
+    .card { 
+      width: 90px; 
+      height: 152px; 
+      /* PASTE YOUR BGA IMAGE LINK HERE */
+      background-image: url(https://x.boardgamearena.net/data/themereleases/current/games/papayoo/251217-1756/img/cards.png); 
+      border-radius: 8px; 
+      cursor: pointer; 
+    }
+    
+    .played { filter: grayscale(100%) brightness(30%); }
+    
+    .suit-header { cursor: pointer; margin: 10px 0 5px 0; font-size: 18px; color: #aaaaaa; user-select: none; }
+    .suit-header:active { color: #ffffff; }
+    
+    .reset-btn { padding: 10px 20px; margin-bottom: 20px; cursor: pointer; background: #e74c3c; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+  <button class="reset-btn" onclick="resetBoard()">Reset Board</button>
+
+  <h2 class="suit-header" onclick="toggleSuit('clubs-grid')">Clubs</h2>
+  <div class="grid" id="clubs-grid"></div>
+
+  <h2 class="suit-header" onclick="toggleSuit('spades-grid')">Spades</h2>
+  <div class="grid" id="spades-grid"></div>
+
+  <h2 class="suit-header" onclick="toggleSuit('hearts-grid')">Hearts</h2>
+  <div class="grid" id="hearts-grid"></div>
+
+  <h2 class="suit-header" onclick="toggleSuit('diamonds-grid')">Diamonds</h2>
+  <div class="grid" id="diamonds-grid"></div>
+
+  <h2 class="suit-header" onclick="toggleSuit('payoo-grid')">Payoos</h2>
+  <div class="grid" id="payoo-grid"></div>
+
+  <script>
+    function buildSpriteSuit(gridId, maxNumber, startingRow) {
+      const grid = document.getElementById(gridId);
+      
+      for (let i = 0; i < maxNumber; i++) {
+        let btn = document.createElement('div');
+        btn.className = 'card';
+        
+        let col = i % 10; 
+        let row = startingRow + Math.floor(i / 10);
+        
+        let xPos = -(col * 90);
+        let yPos = -(row * 152);
+        
+        btn.style.backgroundPosition = xPos + 'px ' + yPos + 'px';
+        
+        btn.onclick = function() { this.classList.toggle('played'); };
+        grid.appendChild(btn);
+      }
+    }
+
+    function toggleSuit(gridId) {
+      const grid = document.getElementById(gridId);
+      const cards = grid.querySelectorAll('.card');
+      const allCrossed = Array.from(cards).every(card => card.classList.contains('played'));
+      
+      cards.forEach(card => {
+        if (allCrossed) {
+          card.classList.remove('played');
+        } else {
+          card.classList.add('played');
+        }
+      });
+    }
+
+    function resetBoard() {
+      const allPlayed = document.querySelectorAll('.played');
+      allPlayed.forEach(card => card.classList.remove('played'));
+    }
+
+    // Row 0 = Clubs, Row 1 = Spades, Row 2 = Hearts, Row 3 = Diamonds, Row 4 = Payoos
+    buildSpriteSuit('clubs-grid', 10, 0); 
+    buildSpriteSuit('spades-grid', 10, 1); 
+    buildSpriteSuit('hearts-grid', 10, 2); 
+    buildSpriteSuit('diamonds-grid', 10, 3); 
+    buildSpriteSuit('payoo-grid', 20, 4); 
+
+  </script>
+</body>
+</html>'
