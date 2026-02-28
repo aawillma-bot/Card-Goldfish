@@ -5,92 +5,101 @@
   <style>
     body { font-family: sans-serif; background: #121212; color: #ffffff; text-align: center; margin: 0; padding: 10px; }
     
-    .grid { display: grid; grid-template-columns: repeat(5, 90px); gap: 10px; justify-content: center; margin-bottom: 20px; }
+    /* Tab Navigation Styles */
+    .tabs { margin-bottom: 20px; }
+    .tab-btn { padding: 10px 20px; margin: 0 5px; cursor: pointer; background: #333333; color: white; border: none; border-radius: 5px; font-size: 16px; }
+    .tab-btn.active { background: #e74c3c; }
     
-    .card { 
-      width: 90px; 
-      height: 152px; 
-      /* PASTE YOUR BGA IMAGE LINK HERE */
-      background-image: url(https://github.com/aawillma-bot/Card-Goldfish/blob/main/papayoo.jpg?raw=true); 
-      border-radius: 8px; 
-      cursor: pointer; 
-    }
+    /* Hides the inactive game */
+    .game-section { display: none; }
+    .game-section.active { display: block; }
+    
+    /* The responsive flex container that replaces the rigid grid */
+    .card-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin-bottom: 20px; }
+    
+    /* Game-specific card sizing */
+    .card-papayoo { width: 90px; height: 152px; background-image: url('papayoo.jpg'); border-radius: 8px; cursor: pointer; }
+    .card-hearts { width: 84px; height: 117px; background-image: url('cards.jpg'); border-radius: 8px; cursor: pointer; }
     
     .played { filter: grayscale(100%) brightness(30%); }
-    
-    .suit-header { cursor: pointer; margin: 10px 0 5px 0; font-size: 18px; color: #aaaaaa; user-select: none; }
-    .suit-header:active { color: #ffffff; }
-    
-    .reset-btn { padding: 10px 20px; margin-bottom: 20px; cursor: pointer; background: #e74c3c; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 16px; }
+    .reset-btn { padding: 10px 20px; margin-bottom: 20px; cursor: pointer; background: #555555; color: white; border: none; border-radius: 5px; }
   </style>
 </head>
 <body>
 
-  <button class="reset-btn" onclick="resetBoard()">Reset Board</button>
+  <div class="tabs">
+    <button class="tab-btn active" id="btn-papayoo" onclick="switchTab('papayoo')">Papayoo</button>
+    <button class="tab-btn" id="btn-hearts" onclick="switchTab('hearts')">Hearts</button>
+  </div>
 
-  <h2 class="suit-header" onclick="toggleSuit('clubs-grid')">Clubs</h2>
-  <div class="grid" id="clubs-grid"></div>
+  <button class="reset-btn" onclick="resetBoard()">Reset Current Board</button>
 
-  <h2 class="suit-header" onclick="toggleSuit('spades-grid')">Spades</h2>
-  <div class="grid" id="spades-grid"></div>
+  <div id="view-papayoo" class="game-section active">
+    <div class="card-list" id="papayoo-list"></div>
+  </div>
 
-  <h2 class="suit-header" onclick="toggleSuit('hearts-grid')">Hearts</h2>
-  <div class="grid" id="hearts-grid"></div>
-
-  <h2 class="suit-header" onclick="toggleSuit('diamonds-grid')">Diamonds</h2>
-  <div class="grid" id="diamonds-grid"></div>
-
-  <h2 class="suit-header" onclick="toggleSuit('payoo-grid')">Payoos</h2>
-  <div class="grid" id="payoo-grid"></div>
+  <div id="view-hearts" class="game-section">
+    <div class="card-list" id="hearts-list"></div>
+  </div>
 
   <script>
-    function buildSpriteSuit(gridId, maxNumber, startingRow) {
-      const grid = document.getElementById(gridId);
+    // Tab Switching Logic
+    function switchTab(game) {
+      document.querySelectorAll('.game-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       
-      for (let i = 0; i < maxNumber; i++) {
-        let btn = document.createElement('div');
-        btn.className = 'card';
-        
-        let col = i % 10; 
-        let row = startingRow + Math.floor(i / 10);
-        
-        let xPos = -(col * 90);
-        let yPos = -(row * 152);
-        
-        btn.style.backgroundPosition = xPos + 'px ' + yPos + 'px';
-        
-        btn.onclick = function() { this.classList.toggle('played'); };
-        grid.appendChild(btn);
-      }
+      document.getElementById('view-' + game).classList.add('active');
+      document.getElementById('btn-' + game).classList.add('active');
     }
 
-    function toggleSuit(gridId) {
-      const grid = document.getElementById(gridId);
-      const cards = grid.querySelectorAll('.card');
-      const allCrossed = Array.from(cards).every(card => card.classList.contains('played'));
-      
-      cards.forEach(card => {
-        if (allCrossed) {
-          card.classList.remove('played');
-        } else {
-          card.classList.add('played');
-        }
-      });
-    }
-
+    // Reset Logic (Only resets the visible tab)
     function resetBoard() {
-      const allPlayed = document.querySelectorAll('.played');
+      const activeGame = document.querySelector('.game-section.active');
+      const allPlayed = activeGame.querySelectorAll('.played');
       allPlayed.forEach(card => card.classList.remove('played'));
     }
 
-    // Row 0 = Clubs, Row 1 = Spades, Row 2 = Hearts, Row 3 = Diamonds, Row 4 = Payoos
-    buildSpriteSuit('clubs-grid', 10, 0); 
-    buildSpriteSuit('spades-grid', 10, 1); 
-    buildSpriteSuit('hearts-grid', 10, 2); 
-    buildSpriteSuit('diamonds-grid', 10, 3); 
-    buildSpriteSuit('payoo-grid', 20, 4); 
+    // Unified Papayoo List (One loop for all 60 cards)
+    function buildPapayoo() {
+      const list = document.getElementById('papayoo-list');
+      for (let i = 0; i < 60; i++) {
+        let btn = document.createElement('div');
+        btn.className = 'card-papayoo';
+        
+        let col = i % 10; 
+        let row = Math.floor(i / 10); 
+        
+        btn.style.backgroundPosition = -(col * 90) + 'px ' + -(row * 152) + 'px';
+        btn.onclick = function() { this.classList.toggle('played'); };
+        list.appendChild(btn);
+      }
+    }
 
+    buildPapayoo();
+    
+        // Hearts List (52 cards, 13 columns)
+    function buildHearts() {
+      const list = document.getElementById('hearts-list');
+      for (let i = 0; i < 52; i++) {
+        let btn = document.createElement('div');
+        btn.className = 'card-hearts';
+        
+        // Math for 13 columns
+        let col = i % 13; 
+        let row = Math.floor(i / 13); 
+        
+        // Multiplied by your new Hearts dimensions (84w x 117h)
+        let xPos = -(col * 84);
+        let yPos = -(row * 117);
+        
+        btn.style.backgroundPosition = xPos + 'px ' + yPos + 'px';
+        btn.onclick = function() { this.classList.toggle('played'); };
+        list.appendChild(btn);
+      }
+    }
+
+    // Call the function to actually draw the cards on the page
+    buildHearts();
   </script>
 </body>
-
-</html>'
+</html>
