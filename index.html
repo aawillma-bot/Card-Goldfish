@@ -13,6 +13,10 @@
     /* Hides the inactive game */
     .game-section { display: none; }
     .game-section.active { display: block; }
+
+    /* Card Wrap Design */
+    .card-wrap { border-radius: 8px; }
+    .noted { box-shadow: 0 0 0 2px #e74c3c; }
     
     /* The responsive flex container that replaces the rigid grid */
     .card-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin-bottom: 20px; }
@@ -43,6 +47,17 @@
   </div>
 
   <script>
+
+    // Card Outline Mechanism
+    function addCard(list, card) {
+      const wrap = document.createElement('div');
+      wrap.className = 'card-wrap';
+      card.onclick = () => card.classList.toggle('played');
+      card.oncontextmenu = (e) => { e.preventDefault(); wrap.classList.toggle('noted'); };
+      wrap.appendChild(card);
+      list.appendChild(wrap);
+    }
+
     // Tab Switching Logic
     function switchTab(game) {
       document.querySelectorAll('.game-section').forEach(el => el.classList.remove('active'));
@@ -55,8 +70,9 @@
     // Reset Logic (Only resets the visible tab)
     function resetBoard() {
       const activeGame = document.querySelector('.game-section.active');
-      const allPlayed = activeGame.querySelectorAll('.played');
-      allPlayed.forEach(card => card.classList.remove('played'));
+      activeGame.querySelectorAll('.played').forEach(c => c.classList.remove('played'));
+      activeGame.querySelectorAll('.noted').forEach(c => c.classList.remove('noted'));
+      }
     }
 
     // Unified Papayoo List (One loop for all 60 cards)
@@ -70,8 +86,7 @@
         let row = Math.floor(i / 10); 
         
         btn.style.backgroundPosition = -(col * 90) + 'px ' + -(row * 152) + 'px';
-        btn.onclick = function() { this.classList.toggle('played'); };
-        list.appendChild(btn);
+        addCard(list, btn);
       }
     }
 
@@ -93,8 +108,7 @@
         let yPos = -(row * 117);
         
         btn.style.backgroundPosition = xPos + 'px ' + yPos + 'px';
-        btn.onclick = function() { this.classList.toggle('played'); };
-        list.appendChild(btn);
+        addCard(list, btn);
       }
     }
 
@@ -103,6 +117,5 @@
   </script>
 </body>
 </html>
-
 
 
